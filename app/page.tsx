@@ -27,14 +27,6 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-
-      {/* Footer — intentionally dark for contrast */}
-      <footer className="bg-luxury-black border-t border-luxury-dark py-8 px-4 sm:px-6">
-        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-white/50 text-xs">
-          <p>© {new Date().getFullYear()} ZKS Executive Cars. All rights reserved.</p>
-          <p className="text-gold/70">Your Journey. Our Priority.</p>
-        </div>
-      </footer>
     </>
   );
 }
