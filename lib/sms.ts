@@ -1,5 +1,5 @@
 export interface BookingDetails {
-  bookingId: string;
+  reference: string;
   passengerName: string;
   pickupLocation: string;
   dropoffLocation: string;
@@ -21,7 +21,7 @@ export async function sendBookingSMS(phone: string, details: BookingDetails) {
 
   const message = [
     "ZKS Executive Cars — Booking Confirmed ✓",
-    `Ref: ${details.bookingId.toUpperCase()}`,
+    `Ref: ${details.reference}`,
     `Passenger: ${details.passengerName}`,
     `From: ${details.pickupLocation}`,
     `To:   ${details.dropoffLocation}`,

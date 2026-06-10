@@ -1,5 +1,6 @@
 import { CheckCircle, ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { getBookingReference } from "@/lib/booking-reference";
 
 export default async function ConfirmedPage({
   searchParams,
@@ -33,7 +34,7 @@ export default async function ConfirmedPage({
               Booking Reference
             </p>
             <p className="font-mono text-gold text-2xl tracking-[0.2em] font-semibold">
-              {ref.slice(-8).toUpperCase()}
+              {getBookingReference(ref)}
             </p>
             <p className="text-muted-foreground text-xs mt-2">
               Save this reference — you may be asked for it.

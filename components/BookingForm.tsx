@@ -1,16 +1,18 @@
 "use client";
 
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { MapPin, User, Mail, Phone, Loader2 } from "lucide-react";
+import { isValidPhoneNumber } from "libphonenumber-js/min";
+import { User, Mail, Phone, Loader2 } from "lucide-react";
 
 import { createBooking, type BookingFormData } from "@/actions/bookings";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import LocationInput from "@/components/LocationInput";
 import VehicleCard from "@/components/VehicleCard";
 import { cn } from "@/lib/utils";
 
@@ -22,8 +24,8 @@ const formSchema = z.object({
   passengerEmail: z.string().email({ error: "Please enter a valid email address" }),
   passengerPhone: z
     .string()
-    .min(10, "Please enter a valid phone number")
-    .refine((v) => /^[\d\s+()-]+$/.test(v), "Phone number contains invalid characters"),
+    .min(1, "Please enter a phone number")
+    .refine((v) => isValidPhoneNumber(v, "GB"), "Please enter a valid phone number"),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -68,6 +70,7 @@ export default function BookingForm() {
 
   const {
     register,
+    control,
     handleSubmit,
     watch,
     setValue,
@@ -75,7 +78,12 @@ export default function BookingForm() {
   } = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      pickupLocation: "",
+      dropoffLocation: "",
       vehicleClass: "executive-sedan",
+      passengerName: "",
+      passengerEmail: "",
+      passengerPhone: "",
     },
   });
 
@@ -105,22 +113,32 @@ export default function BookingForm() {
       <div>
         <SectionLabel>Your Route</SectionLabel>
         <div className="space-y-3">
-          <InputWrapper icon={MapPin} error={errors.pickupLocation?.message}>
-            <Input
-              {...register("pickupLocation")}
-              placeholder="Pickup location"
-              className={cn(errors.pickupLocation && "border-destructive")}
-              autoComplete="street-address"
-            />
-          </InputWrapper>
-          <InputWrapper icon={MapPin} error={errors.dropoffLocation?.message}>
-            <Input
-              {...register("dropoffLocation")}
-              placeholder="Drop-off location"
-              className={cn(errors.dropoffLocation && "border-destructive")}
-              autoComplete="street-address"
-            />
-          </InputWrapper>
+          <Controller
+            name="pickupLocation"
+            control={control}
+            render={({ field }) => (
+              <LocationInput
+                value={field.value}
+                onChange={field.onChange}
+                onBlur={field.onBlur}
+                placeholder="Pickup location"
+                error={errors.pickupLocation?.message}
+              />
+            )}
+          />
+          <Controller
+            name="dropoffLocation"
+            control={control}
+            render={({ field }) => (
+              <LocationInput
+                value={field.value}
+                onChange={field.onChange}
+                onBlur={field.onBlur}
+                placeholder="Drop-off location"
+                error={errors.dropoffLocation?.message}
+              />
+            )}
+          />
         </div>
       </div>
 

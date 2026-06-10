@@ -1,6 +1,8 @@
 "use server";
 
 import { z } from "zod";
+import { isValidPhoneNumber } from "libphonenumber-js";
+import { getBookingReference } from "@/lib/booking-reference";
 import { prisma } from "@/lib/prisma";
 import { sendBookingSMS } from "@/lib/sms";
 
@@ -9,8 +11,8 @@ const bookingSchema = z.object({
   passengerEmail: z.string().email({ error: "Please enter a valid email address" }),
   passengerPhone: z
     .string()
-    .min(10, "Please enter a valid phone number")
-    .refine((v) => /^[\d\s+()-]+$/.test(v), "Phone number contains invalid characters"),
+    .min(1, "Please enter a phone number")
+    .refine((v) => isValidPhoneNumber(v, "GB"), "Please enter a valid phone number"),
   pickupLocation: z.string().min(3, "Please enter a pickup location"),
   dropoffLocation: z.string().min(3, "Please enter a drop-off location"),
   vehicleClass: z.enum(["executive-sedan", "premium-mpv"], {
@@ -42,8 +44,10 @@ export async function createBooking(
     data: parsed.data,
   });
 
+  const reference = getBookingReference(booking.id);
+
   await sendBookingSMS(booking.passengerPhone, {
-    bookingId: booking.id,
+    reference,
     passengerName: booking.passengerName,
     pickupLocation: booking.pickupLocation,
     dropoffLocation: booking.dropoffLocation,

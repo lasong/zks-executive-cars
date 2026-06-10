@@ -54,7 +54,7 @@ export default function VehicleCard({
           alt={label}
           width={512}
           height={512}
-          className="w-full max-w-[120px] h-auto object-contain"
+          className="w-full max-w-[80px] h-auto object-contain"
         />
       </div>
 
