@@ -46,13 +46,13 @@ export async function createBooking(
 
   const reference = getBookingReference(booking.id);
 
-  await sendBookingSMS(booking.passengerPhone, {
+  await sendBookingSMS({
     reference,
     passengerName: booking.passengerName,
+    passengerPhone: booking.passengerPhone,
     pickupLocation: booking.pickupLocation,
     dropoffLocation: booking.dropoffLocation,
     vehicleClass: booking.vehicleClass,
-    bookedAt: booking.createdAt,
   });
 
   return { success: true, bookingId: booking.id };

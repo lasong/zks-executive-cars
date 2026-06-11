@@ -1,37 +1,42 @@
+import { Client, SmsResource } from "@seven.io/client";
+
+const SENDER_ID = "ZKSExecCars";
+
 export interface BookingDetails {
   reference: string;
   passengerName: string;
+  passengerPhone: string;
   pickupLocation: string;
   dropoffLocation: string;
   vehicleClass: string;
-  bookedAt: Date;
 }
 
-export async function sendBookingSMS(phone: string, details: BookingDetails) {
+export async function sendBookingSMS(details: BookingDetails) {
+  const driverPhone = process.env.DRIVER_PHONE_NUMBER;
+  if (!driverPhone) {
+    throw new Error("DRIVER_PHONE_NUMBER environment variable is not set");
+  }
+
   const vehicleLabel =
     details.vehicleClass === "executive-sedan"
       ? "Executive Sedan"
       : "Premium MPV";
 
-  const bookedAtStr = details.bookedAt.toLocaleString("en-GB", {
-    dateStyle: "full",
-    timeStyle: "short",
-    timeZone: "Europe/London",
-  });
-
   const message = [
-    "ZKS Executive Cars — Booking Confirmed ✓",
     `Ref: ${details.reference}`,
     `Passenger: ${details.passengerName}`,
+    `Phone: ${details.passengerPhone}`,
     `From: ${details.pickupLocation}`,
-    `To:   ${details.dropoffLocation}`,
+    `To: ${details.dropoffLocation}`,
     `Vehicle: ${vehicleLabel}`,
-    `Booked: ${bookedAtStr}`,
-    "",
-    "Our driver will contact you shortly with arrival details.",
-    "Questions? Reply to this message or visit zksexecutivecars.co.uk",
   ].join("\n");
 
-  // Replace the console.log below with twilio.messages.create() or Infobip equivalent
-  console.log(`\n[SMS SERVICE] → ${phone}\n${"─".repeat(50)}\n${message}\n${"─".repeat(50)}\n`);
+  const client = new Client({ apiKey: process.env.SEVEN_IO_API_KEY! });
+  const sms = new SmsResource(client);
+
+  await sms.dispatch({
+    to: [driverPhone],
+    text: message,
+    from: SENDER_ID,
+  });
 }
